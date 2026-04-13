@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Financeiro">
+<meta name="theme-color" content="#0f0f1a">
+<title>Controle Financeiro Familiar</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:#0f0f1a;color:#fff;min-height:100vh;max-width:430px;margin:0 auto;position:relative;}
+:root{--bg:#0f0f1a;--card:#16162a;--card2:#1e1e35;--border:#2a2a4e;--cyan:#00d4ff;--green:#00ff88;--yellow:#ffd700;--red:#ff6b6b;--orange:#ffa500;--muted:#8888aa;}
+.screen{display:none;flex-direction:column;min-height:100vh;padding-bottom:80px;}
+.screen.active{display:flex;}
+.topbar{padding:52px 20px 12px;background:var(--bg);position:sticky;top:0;z-index:10;}
+.topbar h1{font-size:26px;font-weight:600;color:#fff;}
+.topbar p{font-size:14px;color:var(--muted);margin-top:2px;}
+.content{padding:0 16px;flex:1;}
+.section-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:20px 0 10px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.mcard{background:var(--card);border-radius:14px;padding:14px;border:0.5px solid var(--border);}
+.mcard .lbl{font-size:11px;color:var(--muted);margin-bottom:5px;}
+.mcard .val{font-size:21px;font-weight:600;}
+.val.c{color:var(--cyan)}.val.g{color:var(--green)}.val.y{color:var(--yellow)}.val.r{color:var(--red)}.val.o{color:var(--orange)}
+.card{background:var(--card);border-radius:14px;padding:14px 16px;border:0.5px solid var(--border);margin-bottom:8px;}
+.card-row{display:flex;justify-content:space-between;align-items:center;}
+.pbar{height:5px;background:#2a2a3e;border-radius:3px;margin-top:8px;overflow:hidden;}
+.pfill{height:100%;border-radius:3px;}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.bg{background:#0a3a22;color:var(--green)}.by{background:#3a2e00;color:var(--yellow)}.br{background:#3a0a0a;color:var(--red)}.bm{background:#2a2a3e;color:var(--muted)}
+.alert-card{background:#1a0f0f;border:0.5px solid #3a1a1a;border-radius:14px;padding:14px 16px;margin-bottom:8px;}
+.alert-card .at{font-size:14px;color:var(--red);font-weight:600;margin-bottom:3px;}
+.alert-card .as{font-size:12px;color:#aa6666;}
+.vrow{display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:14px;padding:14px 16px;border:0.5px solid var(--border);margin-bottom:8px;}
+.vrow .vn{font-size:14px;color:#fff;font-weight:500;}.vrow .vd{font-size:12px;color:var(--muted);margin-top:2px;}
+.vrow .vv{font-size:15px;font-weight:600;color:#fff;text-align:right;}
+.btn-pay{display:block;background:#0a2a1a;border:0.5px solid var(--green);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--green);cursor:pointer;margin-top:4px;font-family:inherit;text-align:center;}
+.btn-pay:disabled{background:#162018;border-color:#2a3a2a;color:#4a6a4a;cursor:default;}
+.btn-pay.paid{background:#0a3a22;color:var(--green);}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.form-group input,.form-group select{width:100%;background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px;color:#fff;font-family:inherit;outline:none;-webkit-appearance:none;appearance:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--cyan);}
+.form-group select option{background:#16162a;}
+.hidden{display:none;}
+.btn-main{width:100%;background:var(--cyan);border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:600;color:#0f0f1a;cursor:pointer;font-family:inherit;margin-top:4px;}
+.btn-main:active{transform:scale(0.98);}
+.toast{background:#0a3a22;border:0.5px solid var(--green);border-radius:12px;padding:12px 16px;text-align:center;color:var(--green);font-size:14px;margin-bottom:14px;display:none;}
+.toast.show{display:block;}
+.divider{height:0.5px;background:var(--border);margin:18px 0;}
+.recent-item{background:var(--card);border-radius:12px;padding:12px 14px;border:0.5px solid var(--border);margin-bottom:6px;}
+.ri-top{display:flex;justify-content:space-between;align-items:center;}
+.ri-name{font-size:14px;color:#ddd;}.ri-val{font-size:14px;font-weight:600;color:var(--red);}
+.ri-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:74px;background:rgba(22,22,42,0.95);backdrop-filter:blur(12px);border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 8px 12px;z-index:100;}
+.nb{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:8px 10px;border-radius:12px;min-width:58px;}
+.nb svg{width:23px;height:23px;}
+.nb span{font-size:10px;color:var(--muted);}
+.nb.active span{color:var(--cyan);}
+.nb.active svg path,.nb.active svg rect,.nb.active svg circle{stroke:var(--cyan)!important;}
+.parc-card{background:var(--card);border-radius:14px;padding:14px 16px;border:0.5px solid var(--border);margin-bottom:8px;}
+.parc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.parc-name{font-size:15px;font-weight:600;color:#fff;}
+.parc-mid{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.parc-val{font-size:14px;font-weight:600;color:var(--yellow);}
+</style>
+</head>
+<body>
+
+<!-- PAINEL -->
+<div id="sc-painel" class="screen active">
+  <div class="topbar">
+    <h1>Olá, Ana Clara</h1>
+    <p id="data-hoje">Carregando...</p>
+  </div>
+  <div class="content">
+    <div class="grid2">
+      <div class="mcard"><div class="lbl">Total gasto</div><div class="val r">R$ 2.985</div></div>
+      <div class="mcard"><div class="lbl">Disponível</div><div class="val g">R$ 18.200</div></div>
+    </div>
+    <div class="grid2">
+      <div class="mcard"><div class="lbl">Faturas abertas</div><div class="val y">R$ 1.890</div></div>
+      <div class="mcard"><div class="lbl">Parcelas/mês</div><div class="val c">R$ 1.420</div></div>
+    </div>
+    <div class="section-label">Limite por cartão</div>
+    <div class="card">
+      <div class="card-row"><span style="font-size:14px;color:#ccc;">Nubank Roxinho</span><span style="font-size:13px;color:var(--green);">R$ 3.450 livres</span></div>
+      <div class="pbar"><div class="pfill" style="width:31%;background:var(--red);"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-row"><span style="font-size:14px;color:#ccc;">Itaú Platinum</span><span style="font-size:13px;color:var(--green);">R$ 5.990 livres</span></div>
+      <div class="pbar"><div class="pfill" style="width:25%;background:var(--yellow);"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-row"><span style="font-size:14px;color:#ccc;">C6 Black</span><span style="font-size:13px;color:var(--green);">R$ 4.210 livres</span></div>
+      <div class="pbar"><div class="pfill" style="width:30%;background:var(--yellow);"></div></div>
+    </div>
+    <div class="section-label">Alertas</div>
+    <div class="alert-card"><div class="at">Nubank Roxinho vence em 3 dias</div><div class="as">Fatura: R$ 550,00 — dia 10</div></div>
+    <div class="alert-card"><div class="at">Internet / TV vence amanhã</div><div class="as">R$ 150,00 — dia 8</div></div>
+    <div class="section-label">Gastos por pessoa</div>
+    <div class="card">
+      <div class="card-row" style="margin-bottom:8px;"><span style="font-size:14px;color:#ccc;">Você</span><span style="font-size:15px;font-weight:600;color:var(--cyan);">R$ 1.795</span></div>
+      <div class="card-row"><span style="font-size:14px;color:#ccc;">Mãe</span><span style="font-size:15px;font-weight:600;color:var(--orange);">R$ 1.190</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- GASTOS -->
+<div id="sc-gastos" class="screen">
+  <div class="topbar"><h1>Lançar gasto</h1><p>Registre cada compra aqui</p></div>
+  <div class="content">
+    <div id="toast" class="toast">Gasto salvo! Fatura atualizada.</div>
+    <div class="form-group">
+      <label>Quem gastou?</label>
+      <select id="quem"><option>Você</option><option>Mãe</option></select>
+    </div>
+    <div class="form-group">
+      <label>Forma de pagamento</label>
+      <select id="forma" onchange="toggleBanco()">
+        <option value="">Selecione...</option>
+        <option value="cc">Cartão de Crédito</option>
+        <option value="deb">Débito</option>
+        <option value="pix">Pix</option>
+        <option value="din">Dinheiro</option>
+        <option value="bol">Boleto</option>
+      </select>
+    </div>
+    <div class="form-group hidden" id="banco-row">
+      <label>Qual cartão?</label>
+      <select id="cartao-sel">
+        <option>Nubank Roxinho</option>
+        <option>Itaú Platinum</option>
+        <option>C6 Black</option>
+        <option>Inter Gold</option>
+        <option>Bradesco Visa</option>
+        <option>Santander Elite</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Valor (R$)</label>
+      <input type="number" id="valor" placeholder="0,00" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>Descrição (opcional)</label>
+      <input type="text" id="descricao" placeholder="Ex: Mercado, Farmácia...">
+    </div>
+    <button class="btn-main" onclick="salvarGasto()">Salvar gasto</button>
+    <div class="divider"></div>
+    <div class="section-label">Últimos lançamentos</div>
+    <div id="lista-gastos">
+      <div class="recent-item"><div class="ri-top"><span class="ri-name">Mercado — Você</span><span class="ri-val">R$ 320,50</span></div><div class="ri-sub">Nubank Roxinho · 01/04</div></div>
+      <div class="recent-item"><div class="ri-top"><span class="ri-name">Farmácia — Mãe</span><span class="ri-val">R$ 85,00</span></div><div class="ri-sub">Bradesco Visa · 02/04</div></div>
+      <div class="recent-item"><div class="ri-top"><span class="ri-name">Conta de luz — Você</span><span class="ri-val">R$ 150,00</span></div><div class="ri-sub">Pix · 03/04</div></div>
+      <div class="recent-item"><div class="ri-top"><span class="ri-name">Restaurante — Mãe</span><span class="ri-val">R$ 210,00</span></div><div class="ri-sub">Inter Gold · 04/04</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VENCIMENTOS -->
+<div id="sc-vencimentos" class="screen">
+  <div class="topbar"><h1>Vencimentos</h1><p>Marque quando pagar</p></div>
+  <div class="content">
+    <div class="grid2">
+      <div class="mcard"><div class="lbl">Pendente</div><div class="val r" id="total-pend">R$ 2.240</div></div>
+      <div class="mcard"><div class="lbl">Já pago</div><div class="val g" id="total-pago">R$ 2.120</div></div>
+    </div>
+    <div class="section-label">Cartões de crédito</div>
+    <div class="vrow" id="v1">
+      <div><div class="vn">Nubank Roxinho</div><div class="vd">Vence dia 10 — 3 dias</div></div>
+      <div style="text-align:right;"><div class="vv">R$ 550,00</div><button class="btn-pay" onclick="pagar('v1',this,550)">Pagar</button></div>
+    </div>
+    <div class="vrow" id="v2">
+      <div><div class="vn">Itaú Platinum</div><div class="vd">Vence dia 15 — 8 dias</div></div>
+      <div style="text-align:right;"><div class="vv">R$ 750,00</div><button class="btn-pay" onclick="pagar('v2',this,750)">Pagar</button></div>
+    </div>
+    <div class="vrow" id="v3">
+      <div><div class="vn">C6 Black</div><div class="vd">Vence dia 20 — 13 dias</div></div>
+      <div style="text-align:right;"><div class="vv">R$ 790,00</div><button class="btn-pay" onclick="pagar('v3',this,790)">Pagar</button></div>
+    </div>
+    <div class="section-label">Contas fixas</div>
+    <div class="vrow" id="v4">
+      <div><div class="vn">Aluguel</div><div class="vd">Vence dia 5</div></div>
+      <div style="text-align:right;"><div class="vv" style="color:var(--green);">R$ 1.800,00</div><button class="btn-pay paid" disabled>Pago</button></div>
+    </div>
+    <div class="vrow" id="v5">
+      <div><div class="vn">Internet / TV</div><div class="vd">Vence dia 8 — amanhã</div></div>
+      <div style="text-align:right;"><div class="vv">R$ 150,00</div><button class="btn-pay" onclick="pagar('v5',this,150)">Pagar</button></div>
+    </div>
+    <div class="vrow" id="v6">
+      <div><div class="vn">Plano de Saúde</div><div class="vd">Vence dia 1</div></div>
+      <div style="text-align:right;"><div class="vv" style="color:var(--green);">R$ 320,00</div><button class="btn-pay paid" disabled>Pago</button></div>
+    </div>
+    <div class="vrow" id="v7">
+      <div><div class="vn">Energia Elétrica</div><div class="vd">Vence dia 12 — 5 dias</div></div>
+      <div style="text-align:right;"><div class="vv">R$ 180,00</div><button class="btn-pay" onclick="pagar('v7',this,180)">Pagar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- PARCELAS -->
+<div id="sc-parcelas" class="screen">
+  <div class="topbar"><h1>Parcelas</h1><p>Compras no crédito</p></div>
+  <div class="content">
+    <div class="grid2">
+      <div class="mcard"><div class="lbl">Este mês</div><div class="val y">R$ 1.420</div></div>
+      <div class="mcard"><div class="lbl">Total restante</div><div class="val r">R$ 14.800</div></div>
+    </div>
+    <div class="section-label">Em aberto</div>
+    <div class="parc-card">
+      <div class="parc-top"><span class="parc-name">iPhone 15</span><span class="badge by">7 / 12</span></div>
+      <div class="parc-mid"><span>Nubank Roxinho</span><span class="parc-val">R$ 500,00 / mês</span></div>
+      <div class="pbar"><div class="pfill" style="width:58%;background:var(--yellow);"></div></div>
+    </div>
+    <div class="parc-card">
+      <div class="parc-top"><span class="parc-name">Notebook Dell</span><span class="badge br">5 / 10</span></div>
+      <div class="parc-mid"><span>Itaú Platinum</span><span class="parc-val">R$ 480,00 / mês</span></div>
+      <div class="pbar"><div class="pfill" style="width:50%;background:var(--red);"></div></div>
+    </div>
+    <div class="parc-card">
+      <div class="parc-top"><span class="parc-name">Smart TV 55"</span><span class="badge by">3 / 12</span></div>
+      <div class="parc-mid"><span>C6 Black</span><span class="parc-val">R$ 300,00 / mês</span></div>
+      <div class="pbar"><div class="pfill" style="width:25%;background:var(--cyan);"></div></div>
+    </div>
+    <div class="parc-card">
+      <div class="parc-top"><span class="parc-name">Sofá 3 lugares</span><span class="badge bm">4 / 6</span></div>
+      <div class="parc-mid"><span>Inter Gold</span><span class="parc-val">R$ 300,00 / mês</span></div>
+      <div class="pbar"><div class="pfill" style="width:67%;background:var(--green);"></div></div>
+    </div>
+    <div class="section-label">Quitadas este mês</div>
+    <div class="parc-card" style="opacity:0.5;">
+      <div class="parc-top"><span class="parc-name">Geladeira Brastemp</span><span class="badge bg">Paga</span></div>
+      <div class="parc-mid"><span>Bradesco Visa · Parcela 2/8</span><span style="color:var(--green);font-size:13px;font-weight:600;">Quitada</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CARTÕES -->
+<div id="sc-cartoes" class="screen">
+  <div class="topbar"><h1>Cartões</h1><p>Limites e faturas</p></div>
+  <div class="content">
+    <div class="section-label">Ana Clara</div>
+    <div class="card">
+      <div class="card-row" style="margin-bottom:10px;"><span style="font-size:15px;font-weight:600;color:#fff;">Nubank Roxinho</span><span class="badge br">Vence em 3 dias</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Fatura</span><span style="font-size:15px;color:var(--red);font-weight:600;">R$ 550,00</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Disponível</span><span style="font-size:15px;color:var(--green);font-weight:600;">R$ 3.450,00</span></div>
+      <div class="pbar" style="margin-top:10px;"><div class="pfill" style="width:31%;background:var(--red);"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-row" style="margin-bottom:10px;"><span style="font-size:15px;font-weight:600;color:#fff;">Bradesco Visa</span><span class="badge bm">Dia 25</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Fatura</span><span style="font-size:15px;color:var(--red);font-weight:600;">R$ 260,00</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Disponível</span><span style="font-size:15px;color:var(--green);font-weight:600;">R$ 3.740,00</span></div>
+      <div class="pbar" style="margin-top:10px;"><div class="pfill" style="width:6%;background:var(--green);"></div></div>
+    </div>
+    <div class="section-label">João</div>
+    <div class="card">
+      <div class="card-row" style="margin-bottom:10px;"><span style="font-size:15px;font-weight:600;color:#fff;">C6 Black</span><span class="badge bm">Dia 20</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Fatura</span><span style="font-size:15px;color:var(--red);font-weight:600;">R$ 790,00</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Disponível</span><span style="font-size:15px;color:var(--green);font-weight:600;">R$ 4.210,00</span></div>
+      <div class="pbar" style="margin-top:10px;"><div class="pfill" style="width:30%;background:var(--yellow);"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-row" style="margin-bottom:10px;"><span style="font-size:15px;font-weight:600;color:#fff;">Inter Gold</span><span class="badge bm">Dia 5</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Fatura</span><span style="font-size:15px;color:var(--red);font-weight:600;">R$ 300,00</span></div>
+      <div class="card-row"><span style="font-size:12px;color:var(--muted);">Disponível</span><span style="font-size:15px;color:var(--green);font-weight:600;">R$ 2.700,00</span></div>
+      <div class="pbar" style="margin-top:10px;"><div class="pfill" style="width:10%;background:var(--green);"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- NAVEGAÇÃO -->
+<nav class="bottom-nav">
+  <button class="nb active" id="nb-painel" onclick="goTo('painel')">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#00d4ff" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#00d4ff" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#00d4ff" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#00d4ff" stroke-width="1.8"/></svg>
+    <span>Painel</span>
+  </button>
+  <button class="nb" id="nb-gastos" onclick="goTo('gastos')">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8888aa" stroke-width="1.8"/><path d="M12 8v4l2.5 2.5" stroke="#8888aa" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span>Gastos</span>
+  </button>
+  <button class="nb" id="nb-vencimentos" onclick="goTo('vencimentos')">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="#8888aa" stroke-width="1.8"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#8888aa" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span>Vencer</span>
+  </button>
+  <button class="nb" id="nb-parcelas" onclick="goTo('parcelas')">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="8" width="20" height="13" rx="2" stroke="#8888aa" stroke-width="1.8"/><path d="M6 8V6a4 4 0 018 0v2" stroke="#8888aa" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span>Parcelas</span>
+  </button>
+  <button class="nb" id="nb-cartoes" onclick="goTo('cartoes')">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="#8888aa" stroke-width="1.8"/><path d="M2 10h20" stroke="#8888aa" stroke-width="1.8"/></svg>
+    <span>Cartões</span>
+  </button>
+</nav>
+
+<script>
+var pendente = 2240, pago = 2120;
+
+document.getElementById('data-hoje').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+function goTo(name) {
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('sc-'+name).classList.add('active');
+  document.querySelectorAll('.nb').forEach(function(b){
+    b.classList.remove('active');
+    b.querySelectorAll('path,rect,circle').forEach(function(el){el.setAttribute('stroke','#8888aa');});
+  });
+  var btn = document.getElementById('nb-'+name);
+  btn.classList.add('active');
+  btn.querySelectorAll('path,rect,circle').forEach(function(el){el.setAttribute('stroke','#00d4ff');});
+  window.scrollTo(0,0);
+}
+
+function toggleBanco(){
+  var v = document.getElementById('forma').value;
+  document.getElementById('banco-row').classList.toggle('hidden', v !== 'cc');
+}
+
+function salvarGasto(){
+  var val = document.getElementById('valor').value;
+  if(!val || val <= 0) return;
+  var quem = document.getElementById('quem').value;
+  var forma = document.getElementById('forma').options[document.getElementById('forma').selectedIndex].text;
+  var desc = document.getElementById('descricao').value || 'Gasto';
+  var cartao = document.getElementById('forma').value === 'cc' ? document.getElementById('cartao-sel').value : forma;
+  var hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  var lista = document.getElementById('lista-gastos');
+  var item = document.createElement('div');
+  item.className = 'recent-item';
+  item.innerHTML = '<div class="ri-top"><span class="ri-name">'+desc+' — '+quem+'</span><span class="ri-val">R$ '+parseFloat(val).toFixed(2).replace('.',',')+'</span></div><div class="ri-sub">'+cartao+' · '+hoje+'</div>';
+  lista.insertBefore(item, lista.firstChild);
+  document.getElementById('valor').value='';
+  document.getElementById('descricao').value='';
+  document.getElementById('forma').value='';
+  document.getElementById('banco-row').classList.add('hidden');
+  var t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+function pagar(id, btn, valor){
+  btn.disabled = true;
+  btn.textContent = 'Pago';
+  btn.classList.add('paid');
+  var card = document.getElementById(id);
+  card.style.opacity = '0.6';
+  var vv = card.querySelector('.vv');
+  if(vv) vv.style.color = 'var(--green)';
+  pendente = Math.max(0, pendente - valor);
+  pago += valor;
+  document.getElementById('total-pend').textContent = 'R$ '+pendente.toLocaleString('pt-BR');
+  document.getElementById('total-pago').textContent = 'R$ '+pago.toLocaleString('pt-BR');
+}
+</script>
+</body>
+</html>
