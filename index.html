@@ -53,13 +53,13 @@ select option{background:#16213e;}
 .tipo-card .tipo-desc{font-size:11px;color:var(--muted);margin-top:3px;}
 
 /* PIN */
-.pin-display{display:flex;gap:14px;justify-content:center;margin:24px 0;}
-.pin-circle{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);transition:all 0.15s;}
+.pin-display{display:flex;gap:22px;justify-content:center;margin:28px 0;}
+.pin-circle{width:26px;height:26px;border-radius:50%;border:2.5px solid var(--border);transition:all 0.15s;}
 .pin-circle.filled{background:var(--green);border-color:var(--green);}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 auto;max-width:280px;}
-.pin-key{background:var(--card);border:0.5px solid var(--border);border-radius:16px;height:64px;font-size:22px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 auto;max-width:320px;width:100%;}
+.pin-key{background:var(--card);border:0.5px solid var(--border);border-radius:18px;height:80px;font-size:28px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;}
 .pin-key:active{transform:scale(0.94);background:var(--card2);}
-.pin-key.del{font-size:18px;color:var(--muted);}
+.pin-key.del{font-size:22px;color:var(--muted);}
 .pin-key.empty{background:transparent;border:none;cursor:default;}
 
 /* AVATAR */
@@ -219,9 +219,9 @@ select option{background:#16213e;}
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Idioma</label>
-        <div class="lang-row">
+      <div class="form-group" id="fg-pais">
+        <label id="label-pais">País e moeda</label>
+        <div id="pais-selector" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
           <div class="lang-card selected" id="lang-pt" onclick="selectLang('pt')">
             <div class="lang-flag">🇧🇷</div>
             <div class="lang-name">Português</div>
@@ -433,6 +433,16 @@ select option{background:#16213e;}
   </div>
 </div>
 
+
+<!-- CONFIG -->
+<div id="sc-config" class="screen">
+  <div class="topbar"><h1 id="config-title">Configurações</h1><p id="config-sub">Gerencie sua conta</p></div>
+  <div class="content">
+    <div id="toast-config" class="toast ok"></div>
+    <div id="config-content"></div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottom-nav" style="display:none;">
   <button class="nb active" id="nb-painel" onclick="goTo('painel')">
@@ -454,6 +464,10 @@ select option{background:#16213e;}
   <button class="nb" id="nb-cartoes" onclick="goTo('cartoes')">
     <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="#6677aa" stroke-width="1.8"/><path d="M2 10h20" stroke="#6677aa" stroke-width="1.8"/></svg>
     <span>Cartões</span>
+  </button>
+  <button class="nb" id="nb-config" onclick="goTo('config')">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#6677aa" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#6677aa" stroke-width="1.8"/></svg>
+    <span>Config</span>
   </button>
 </nav>
 
@@ -515,7 +529,7 @@ select option{background:#16213e;}
   <div class="modal" style="text-align:center;">
     <button class="modal-close" onclick="fecharModal('modal-pin-change')">×</button>
     <h2>Alterar PIN</h2>
-    <div style="font-size:14px;color:var(--muted);margin-bottom:8px;">Digite seu novo PIN de 4 dígitos</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:8px;" id="sc-pin-change-title">Digite seu novo PIN de 4 dígitos</div>
     <div class="pin-display" id="pin-display-change"></div>
     <div class="pin-pad" id="pin-pad-change" style="margin:0 auto;"></div>
     <div style="margin-top:12px;font-size:13px;color:var(--green);display:none;" id="pin-change-ok">PIN alterado!</div>
